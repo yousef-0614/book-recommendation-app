@@ -1,5 +1,15 @@
 package cs1302.api;
 
+import java.net.http.HttpClient;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.net.http.HttpRequest;
+import java.nio.charset.StandardCharsets;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -12,12 +22,35 @@ import javafx.stage.Stage;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Priority;
+import javafx.scene.control.Alert;
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
+
 import cs1302.api.BookInfo;
+import cs1302.api.AnimeResponse;
+import cs1302.api.LibraryResponse;
 
 /**
  * Gives book recommendations based on the anime input by the user.
  */
 public class ApiApp extends Application {
+
+    /** HTTP Client*/
+    public static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+        .version(HttpClient.Version.HTTP_2)
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build();
+
+    /** Google {@code Gson} object for parsing JSON.*/
+    public static Gson GSON = new GsonBuilder()
+        .setPrettyPrinting()
+        .create();
+
+    public static final String OPEN_LIBRARY_API = "https://openlibrary.org/search.json";
+
+    public static final String JIKAN_API = "https://api.jikan.moe/v4/anime";
+
+
     Stage stage;
     Scene scene;
     VBox root;
