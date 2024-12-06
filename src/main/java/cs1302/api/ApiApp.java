@@ -9,6 +9,8 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -29,6 +31,7 @@ import javafx.event.ActionEvent;
 import cs1302.api.BookInfo;
 import cs1302.api.AnimeResponse;
 import cs1302.api.LibraryResponse;
+import cs1302.api.Anime;
 
 /**
  * Gives book recommendations based on the anime input by the user.
@@ -79,6 +82,14 @@ public class ApiApp extends Application {
         b5 = new BookInfo();
     } // ApiApp
 
+
+    /** {@inheritDoc} */
+    @Override
+    public void init() {
+        search.setOnAction(ae -> this.findBooks());
+    } // init
+
+
     /** {@inheritDoc} */
     @Override
     public void start(Stage stage) {
@@ -110,5 +121,74 @@ public class ApiApp extends Application {
         stage.show();
 
     } // start
+
+    public void findBooks() {
+        this.jikanCall();
+        //this.openLibraryCall();
+        // change GUI below this
+    } // findBooks
+
+
+    String[] genre = new String[5];
+    /**
+     * Jikan API call.
+     */
+    public void jikanCall() {
+        try {
+            String animeName = URLEncoder.encode(this.query.getText(), StandardCharsets.UTF_8);
+            String query = String.format("?q=%s", animeName);
+            String url = JIKAN_API + query;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
+
+            HttpResponse<String> response = HTTP_CLIENT
+                .send(request, BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                Platform.runLater(() -> this.displayError());
+                return;
+            } // if
+
+            String jsonResponse = response.body();
+
+            AnimeResponse responseObject = GSON.<AnimeResponse>fromJson(jsonResponse,
+                                                                        AnimeResponse.class);
+            if (responseObject.data != null && !responseObject.data.isEmpty()) {
+                Anime firstAnime = responseObject.data.get(0);
+                if (firstAnime.genres != null) {
+                    for (int i = 0; i < Math.min(firstAnime.genres.length, genre.length); i++) {
+                        genre[i] = firstAnime.genres[i].name;
+                    } // for
+                } // if
+            } // if
+            // for debugging purposes, take out when not needed
+            for (int i = 0; i < genre.length; i++) {
+                System.out.println(genre[i]);
+            } // for
+        } catch (IOException | InterruptedException ie) {
+            this.displayError();
+        } // try
+
+    } // jikanCall
+
+    /**
+     * Open Library API call.
+     */
+    public void openLibraryCall() {
+        throw new UnsupportedOperationException("Not implemented");
+    } // openLibraryCall
+
+    /**
+     * Displays an error message.
+     */
+    public void displayError() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Anime: " + query.getText());
+        alert.setContentText("Couldn't find results for this search.");
+        alert.showAndWait();
+    } // displayError
 
 } // ApiApp
