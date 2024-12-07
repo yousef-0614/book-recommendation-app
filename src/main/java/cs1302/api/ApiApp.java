@@ -128,14 +128,16 @@ public class ApiApp extends Application {
     } // start
     boolean callSuccess;
     public void findBooks() {
-        this.search.setDisable(true);
+        Platform.runLater(() -> this.search.setDisable(true));
         this.jikanCall();
         if (callSuccess) {
             this.openLibraryCall();
         } else {
             this.displayError();
+            Platform.runLater(() -> this.search.setDisable(false));
         } // if-else
-        this.search.setDisable(false);
+        Platform.runLater(() -> this.search.setDisable(false));
+        genre = new String[3];
     } // findBooks
 
     String[] genre = new String[3];
@@ -157,6 +159,7 @@ public class ApiApp extends Application {
 
             if (response.statusCode() != 200) {
                 Platform.runLater(() -> this.displayError());
+                Platform.runLater(() -> this.search.setDisable(false));
                 callSuccess = false;
                 return;
             } // if
@@ -175,6 +178,7 @@ public class ApiApp extends Application {
             } // if
             if (genre[0] == null) {
                 Platform.runLater(() -> this.displayError());
+                Platform.runLater(() -> this.search.setDisable(false));
                 callSuccess = false;
                 return;
             } // if
@@ -184,6 +188,7 @@ public class ApiApp extends Application {
             } // for
         } catch (IOException | InterruptedException ie) {
             this.displayError();
+            Platform.runLater(() -> this.search.setDisable(false));
         } // try
         callSuccess = true;
     } // jikanCall
@@ -214,6 +219,7 @@ public class ApiApp extends Application {
 
             if (response.statusCode() != 200) {
                 Platform.runLater(() -> this.displayError());
+                Platform.runLater(() -> this.search.setDisable(false));
                 callSuccess = false;
                 return;
             } // if
@@ -247,7 +253,8 @@ public class ApiApp extends Application {
                                                                     firstSentenceFinal));
             } // for
         } catch (IOException | InterruptedException ie) {
-            this.displayError();
+            Platform.runLater(() -> this.displayError());
+            Platform.runLater(() -> this.search.setDisable(false));
         } // try
 
     } // openLibraryCall
