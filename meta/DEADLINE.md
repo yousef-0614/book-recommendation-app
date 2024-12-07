@@ -14,7 +14,17 @@ Markdown is transformed into nice-looking HTML.
 
 > **Also, include the GitHub `https` URL to your repository.**
 
-TODO WRITE / REPLACE
+My app is a book recommendation app based on what anime you like. When
+you enter an anime name and click the find books button, it will display
+5 book recommendations based on the genre of the anime. I used Jikan API
+for the anime. This API is essentially a database for a website that has
+information about almost every anime. I used Open Library for the books.
+They are connected as follows: Jikan API is queried using the anime name
+then the genres are extracted from the JSON response and these genres are
+used to query the Open Library API, which gives you information about books
+in the same genre.
+
+GitHub URL: https://github.com/yousef-0614/cs1302-api-app.git
 
 ## Part 1.2: APIs
 
@@ -25,18 +35,18 @@ TODO WRITE / REPLACE
 > information are provided below. If your app uses more than two RESTful
 > JSON APIs, then include them with similar formatting.
 
-### API 1
+### Jikan API
 
 ```
-https://.../replace/me
+https://api.jikan.moe/v4/anime?q=bleach
 ```
 
 > Replace this line with notes (if needed) or remove it (if not needed).
 
-### API 2
+### Open Library API
 
 ```
-https://../replace/me
+https://openlibrary.org/search.json?q=mystery&limit=5
 ```
 
 > Replace this line with notes (if needed) or remove it (if not needed).
@@ -46,11 +56,14 @@ https://../replace/me
 > What is something new and/or exciting that you learned from working
 > on this project?
 
-TODO WRITE / REPLACE
+I learned how to actually make things while coding. Before the this project, I understood how to code sure,
+but I wasn't really sure how to actually build things. This project helped a lot with GitHub and using
+concepts like APIs to make functioning apps.
 
 ## Part 3: Retrospect
 
 > If you could start the project over from scratch, what do
 > you think might do differently and why?
 
-TODO WRITE / REPLACE
+I'm not really sure I think all the mistakes I made are important. I would choose a different idea
+though just so I can try more new things.
