@@ -182,10 +182,6 @@ public class ApiApp extends Application {
                 callSuccess = false;
                 return;
             } // if
-            // for debugging purposes, take out when not needed
-            for (int i = 0; i < genre.length; i++) {
-                System.out.println(genre[i]);
-            } // for
         } catch (IOException | InterruptedException ie) {
             this.displayError();
             Platform.runLater(() -> this.search.setDisable(false));
@@ -209,7 +205,6 @@ public class ApiApp extends Application {
             } // for
             queryBuilder.append("&limit=5");
             String url = OPEN_LIBRARY_API + queryBuilder.toString();
-            System.out.println("URL made: " + url);
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .build();
@@ -223,7 +218,6 @@ public class ApiApp extends Application {
                 callSuccess = false;
                 return;
             } // if
-            System.out.println("Request sent");
 
             String jsonResponse = response.body();
 
