@@ -41,7 +41,7 @@ import java.util.ArrayList;
  */
 public class ApiApp extends Application {
 
-    /** HTTP Client*/
+    /** HTTP Client.*/
     public static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
         .version(HttpClient.Version.HTTP_2)
         .followRedirects(HttpClient.Redirect.NORMAL)
@@ -126,7 +126,12 @@ public class ApiApp extends Application {
         stage.show();
 
     } // start
+
     boolean callSuccess;
+
+    /**
+     * Method to find books based on user inputted anime.
+     */
     public void findBooks() {
         Platform.runLater(() -> this.search.setDisable(true));
         this.jikanCall();
@@ -141,6 +146,7 @@ public class ApiApp extends Application {
     } // findBooks
 
     String[] genre = new String[3];
+
     /**
      * Jikan API call.
      */

@@ -11,7 +11,7 @@ public class LibraryResult {
     String[] firstSentence;
     String title;
     @SerializedName("author_name")
-    String authorName[];
+    String[] authorName;
     @SerializedName("first_publish_year")
     String firstPublishYear;
 } // LibraryResult

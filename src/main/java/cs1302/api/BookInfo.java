@@ -24,6 +24,14 @@ public class BookInfo extends VBox {
         this.getChildren().addAll(title, author, year, firstSentence);
     } // constructor
 
+    /**
+     * Used to change the text of the labels.
+     *
+     * @param title to change the title label.
+     * @param author to change the author label.
+     * @param year to change the year label.
+     * @param firstSentence to change the firstSentence label.
+     */
     public void setLabels(String title, String author, String year, String firstSentence) {
         this.title.setText("Title: " + title);
         this.author.setText("Author: " + author);
