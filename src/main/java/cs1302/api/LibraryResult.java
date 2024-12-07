@@ -8,8 +8,10 @@ import com.google.gson.annotations.SerializedName;
  */
 public class LibraryResult {
     @SerializedName("first_sentence")
-    String firstSentence;
+    String[] firstSentence;
     String title;
+    @SerializedName("author_name")
+    String authorName[];
     @SerializedName("first_publish_year")
     String firstPublishYear;
 } // LibraryResult

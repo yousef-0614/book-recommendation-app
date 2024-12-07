@@ -24,4 +24,11 @@ public class BookInfo extends VBox {
         this.getChildren().addAll(title, author, year, firstSentence);
     } // constructor
 
+    public void setLabels(String title, String author, String year, String firstSentence) {
+        this.title.setText("Title: " + title);
+        this.author.setText("Author: " + author);
+        this.year.setText("Year: " + year);
+        this.firstSentence.setText("First Sentence: " + firstSentence);
+    } // setLabels
+
 } // BookInfo

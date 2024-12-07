@@ -32,6 +32,9 @@ import cs1302.api.BookInfo;
 import cs1302.api.AnimeResponse;
 import cs1302.api.LibraryResponse;
 import cs1302.api.Anime;
+import cs1302.api.LibraryResult;
+
+import java.util.ArrayList;
 
 /**
  * Gives book recommendations based on the anime input by the user.
@@ -65,6 +68,7 @@ public class ApiApp extends Application {
     BookInfo b3;
     BookInfo b4;
     BookInfo b5;
+    Label instructions;
 
     /**
      * Constructs an {@code ApiApp} object. This default (i.e., no argument)
@@ -80,13 +84,14 @@ public class ApiApp extends Application {
         b3 = new BookInfo();
         b4 = new BookInfo();
         b5 = new BookInfo();
+        instructions = new Label("Type in an anime name, then press the button for book recs.");
     } // ApiApp
 
 
     /** {@inheritDoc} */
     @Override
     public void init() {
-        search.setOnAction(ae -> this.findBooks());
+        search.setOnAction(ae -> runInNewThread(() -> this.findBooks()));
     } // init
 
 
@@ -110,8 +115,8 @@ public class ApiApp extends Application {
         HBox.setHgrow(query, Priority.ALWAYS);
         HBox.setHgrow(search, Priority.ALWAYS);
         hbox.getChildren().addAll(query, search);
-        root.getChildren().addAll(hbox, b1, b2, b3, b4, b5);
-        scene = new Scene(root);
+        root.getChildren().addAll(hbox,instructions, b1, b2, b3, b4, b5);
+        scene = new Scene(root, 1000, 675);
 
         // setup stage
         stage.setTitle("ApiApp!");
@@ -121,15 +126,19 @@ public class ApiApp extends Application {
         stage.show();
 
     } // start
-
+    boolean callSuccess;
     public void findBooks() {
+        this.search.setDisable(true);
         this.jikanCall();
-        //this.openLibraryCall();
-        // change GUI below this
+        if (callSuccess) {
+            this.openLibraryCall();
+        } else {
+            this.displayError();
+        } // if-else
+        this.search.setDisable(false);
     } // findBooks
 
-
-    String[] genre = new String[5];
+    String[] genre = new String[3];
     /**
      * Jikan API call.
      */
@@ -148,6 +157,7 @@ public class ApiApp extends Application {
 
             if (response.statusCode() != 200) {
                 Platform.runLater(() -> this.displayError());
+                callSuccess = false;
                 return;
             } // if
 
@@ -163,6 +173,11 @@ public class ApiApp extends Application {
                     } // for
                 } // if
             } // if
+            if (genre[0] == null) {
+                Platform.runLater(() -> this.displayError());
+                callSuccess = false;
+                return;
+            } // if
             // for debugging purposes, take out when not needed
             for (int i = 0; i < genre.length; i++) {
                 System.out.println(genre[i]);
@@ -170,14 +185,71 @@ public class ApiApp extends Application {
         } catch (IOException | InterruptedException ie) {
             this.displayError();
         } // try
-
+        callSuccess = true;
     } // jikanCall
 
     /**
      * Open Library API call.
      */
     public void openLibraryCall() {
-        throw new UnsupportedOperationException("Not implemented");
+        try {
+            StringBuilder queryBuilder = new StringBuilder("?q=");
+            for (int i = 0; i < genre.length; i++) {
+                if (genre[i] != null) {
+                    if (queryBuilder.length() > 3) {
+                        queryBuilder.append("+OR+");
+                    } // if
+                    queryBuilder.append(URLEncoder.encode(genre[i], StandardCharsets.UTF_8));
+                } // if
+            } // for
+            queryBuilder.append("&limit=5");
+            String url = OPEN_LIBRARY_API + queryBuilder.toString();
+            System.out.println("URL made: " + url);
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
+
+            HttpResponse<String> response = HTTP_CLIENT
+                .send(request, BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                Platform.runLater(() -> this.displayError());
+                callSuccess = false;
+                return;
+            } // if
+            System.out.println("Request sent");
+
+            String jsonResponse = response.body();
+
+            LibraryResponse responseObject = GSON.<LibraryResponse>fromJson(jsonResponse,
+                                                                            LibraryResponse.class);
+
+            ArrayList<BookInfo> bookFields = new ArrayList<>();
+            bookFields.add(this.b1);
+            bookFields.add(this.b2);
+            bookFields.add(this.b3);
+            bookFields.add(this.b4);
+            bookFields.add(this.b5);
+
+            for (int i = 0; i < Math.min(bookFields.size(), responseObject.docs.length); i++) {
+                final int index = i;
+                LibraryResult current = responseObject.docs[i];
+                String firstSentence = "";
+                if (current.firstSentence != null) {
+                    firstSentence = current.firstSentence[0];
+                } else {
+                    firstSentence = "No first sentence available";
+                } // if
+                final String firstSentenceFinal = firstSentence;
+                Platform.runLater(() -> bookFields.get(index).setLabels(current.title,
+                                                                    current.authorName[0],
+                                                                    current.firstPublishYear,
+                                                                    firstSentenceFinal));
+            } // for
+        } catch (IOException | InterruptedException ie) {
+            this.displayError();
+        } // try
+
     } // openLibraryCall
 
     /**
@@ -190,5 +262,16 @@ public class ApiApp extends Application {
         alert.setContentText("Couldn't find results for this search.");
         alert.showAndWait();
     } // displayError
+
+    /**
+     * Runs a given task in a new thread.
+     *
+     * @param task the task the thread handles.
+     */
+    public void runInNewThread(Runnable task) {
+        Thread t1 = new Thread(task);
+        t1.setDaemon(true);
+        t1.start();
+    }
 
 } // ApiApp

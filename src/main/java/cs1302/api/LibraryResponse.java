@@ -7,5 +7,5 @@ import cs1302.api.LibraryResult;
  * an object from JSON response body.
  */
 public class LibraryResponse {
-    LibraryResult[] books;
+    LibraryResult[] docs;
 } // LibraryResponse
